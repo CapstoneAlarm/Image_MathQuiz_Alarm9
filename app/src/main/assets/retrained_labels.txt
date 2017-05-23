@@ -1,0 +1,4 @@
+faucet
+seat
+brush
+cup
