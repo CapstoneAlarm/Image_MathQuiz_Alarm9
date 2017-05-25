@@ -166,7 +166,7 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 			((Button) findViewById(R.id.Button8)).setOnClickListener(this);
 			((Button) findViewById(R.id.Button9)).setOnClickListener(this);
 			((Button) findViewById(R.id.Button_clear)).setOnClickListener(this);
-			((Button) findViewById(R.id.Button_decimal)).setOnClickListener(this);
+			//((Button) findViewById(R.id.Button_decimal)).setOnClickListener(this);
 			((Button) findViewById(R.id.Button_minus)).setOnClickListener(this);
 
 		} catch(Exception e){

@@ -16,7 +16,6 @@ package za.co.neilson.alarm.alert;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 public class MathProblem {
 
 	enum Operator {
@@ -24,25 +23,25 @@ public class MathProblem {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
 		public String toString() {
 			String string = null;
 			switch (ordinal()) {
-			case 0:
-				string = "+";
-				break;
-			case 1:
-				string = "-";
-				break;
-			case 2:
-				string = "*";
-				break;
-			case 3:
-				string = "/";
-				break;
+				case 0:
+					string = "+";
+					break;
+				case 1:
+					string = "-";
+					break;
+				case 2:
+					string = "*";
+					break;
+				case 3:
+					string = "/";
+					break;
 			}
 			return string;
 		}
@@ -52,11 +51,11 @@ public class MathProblem {
 	private ArrayList<Operator> operators;
 	private int answer = 0;
 	private int min = 0;
-	private int max = 10;
-	public MathProblem() {		
+	private int max = 12;
+	public MathProblem() {
 		this(3);
 	}
-	
+
 	public MathProblem(int numParts) {
 		super();
 		Random random = new Random(System.currentTimeMillis());
@@ -64,70 +63,50 @@ public class MathProblem {
 		parts = new ArrayList<Integer>(numParts);
 		for (int i = 0; i < numParts; i++)
 			parts.add(i, (Integer) random.nextInt(max - min + 1) + min);
-		
+
 		operators = new ArrayList<MathProblem.Operator>(numParts - 1);
 		for (int i = 0; i < numParts - 1; i++)
-			operators.add(i,Operator.values()[random.nextInt(2)+1]);
-		
+			operators.add(i, Operator.values()[random.nextInt(2) + 1]);
+
 		ArrayList<Object> combinedParts = new ArrayList<Object>();
-		for (int i = 0; i < numParts; i++){
+		for (int i = 0; i < numParts; i++) {
 			combinedParts.add(parts.get(i));
-			if(i<numParts-1)
+			if (i < numParts - 1)
 				combinedParts.add(operators.get(i));
 		}
-		
-		while(combinedParts.contains(Operator.DIVIDE)){	
-			int i = combinedParts.indexOf(Operator.DIVIDE);
-			answer = (Integer) combinedParts.get(i-1) / (Integer) combinedParts.get(i+1);
+
+
+		//sj
+		while(combinedParts.contains(Operator.DIVIDE) ||combinedParts.contains(Operator.MULTIPLY)
+				||combinedParts.contains(Operator.ADD) ||combinedParts.contains(Operator.SUBTRACT)){
+
+			int i = 0;
+			//Operator를 object형태로 combinedParts.get(i)에 넘겨주어 연산자를 식별할 수 있게함
+			while(!(combinedParts.get(i) instanceof Operator)){
+				i++;
+			}
+
+			//받아온 연산자에 따른 계산 수행
+			if(combinedParts.get(i) == Operator.DIVIDE){
+				answer = (Integer)combinedParts.get(i-1) / (Integer)combinedParts.get(i+1);
+			}else if(combinedParts.get(i) == Operator.MULTIPLY){
+				answer = (Integer)combinedParts.get(i-1) * (Integer)combinedParts.get(i+1);
+			}else if(combinedParts.get(i) == Operator.ADD){
+				answer = (Integer)combinedParts.get(i-1) + (Integer)combinedParts.get(i+1);
+			}else {	//combinedParts.get(i) == Operator.SUBTRACT
+				answer = (Integer)combinedParts.get(i-1) - (Integer)combinedParts.get(i+1);
+			}
+
 			for (int r = 0; r < 2; r++)
 				combinedParts.remove(i-1);
 			combinedParts.set(i-1, answer);
 		}
-		while(combinedParts.contains(Operator.MULTIPLY)){	
-			int i = combinedParts.indexOf(Operator.MULTIPLY);
-			answer = (Integer) combinedParts.get(i-1) * (Integer) combinedParts.get(i+1);
-			for (int r = 0; r < 2; r++)
-				combinedParts.remove(i-1);
-			combinedParts.set(i-1, answer);			
-		}
-		
-//		while(combinedParts.contains(Operator.ADD) ||combinedParts.contains(Operator.SUBTRACT)){	
-//			int i = 0;
-//			while(!(combinedParts.get(i) instanceof Operator)){
-//				i++;
-//			}
-//			if(combinedParts.get(i) == Operator.ADD){
-//				answer = (Integer)combinedParts.get(i-1) + (Integer)combinedParts.get(i+1);
-//			}else{
-//				answer = (Integer)combinedParts.get(i-1) - (Integer)combinedParts.get(i+1);
-//			}
-//			for (int r = 0; r < 2; r++)
-//				combinedParts.remove(i-1);
-//			combinedParts.set(i-1, answer);
-//		}
-		
-		while(combinedParts.contains(Operator.ADD)){	
-			int i = combinedParts.indexOf(Operator.ADD);
-			answer = (Integer) combinedParts.get(i-1) + (Integer) combinedParts.get(i+1);
-			for (int r = 0; r < 2; r++)
-				combinedParts.remove(i-1);
-			combinedParts.set(i-1, answer);
-		}
-		while(combinedParts.contains(Operator.SUBTRACT)){	
-			int i = combinedParts.indexOf(Operator.SUBTRACT);
-			answer = (Integer) combinedParts.get(i-1) - (Integer) combinedParts.get(i+1);
-			for (int r = 0; r < 2; r++)
-				combinedParts.remove(i-1);
-			combinedParts.set(i-1, answer);
-		}
-		
-//		2 5 7 8 9 11
-//		 + - * / -
+
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
