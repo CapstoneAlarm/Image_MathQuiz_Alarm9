@@ -28,7 +28,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
-
 public class Alarm implements Serializable {
 
 	public enum Howto{
@@ -289,7 +288,9 @@ public class Alarm implements Serializable {
 
 		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
-		alarmManager.set(AlarmManager.RTC_WAKEUP, getAlarmTime().getTimeInMillis(), pendingIntent);
+		//sj
+		//알람시간 정확하게 울리게하는 함수 (API23이상에서 사용가능)
+		alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getAlarmTime().getTimeInMillis(), pendingIntent);
 	}
 
 	///시간 계산 스트링 변환함수
@@ -299,21 +300,18 @@ public class Alarm implements Serializable {
 		long hours = timeDifference / (1000 * 60 * 60) - (days * 24);
 		long minutes = timeDifference / (1000 * 60) - (days * 24 * 60) - (hours * 60);
 		long seconds = timeDifference / (1000) - (days * 24 * 60 * 60) - (hours * 60 * 60) - (minutes * 60);
-		String alert = " 시간 후에 알람이 울립니다";
+		String alert = " ";
 		if (days > 0) {
 			alert += String.format(
-					"%d days, %d hours, %d minutes and %d seconds", days,
-					hours, minutes, seconds);
+					"%d 일, %d 시간, %d 분, %d 초 후에 알람이 울립니다", days, hours, minutes, seconds);
 		} else {
 			if (hours > 0) {
-				alert += String.format("%d hours, %d minutes and %d seconds",
-						hours, minutes, seconds);
+				alert += String.format("%d 시간, %d 분, %d 초 후에 알람이 울립니다", hours, minutes, seconds);
 			} else {
 				if (minutes > 0) {
-					alert += String.format("%d minutes, %d seconds", minutes,
-							seconds);
+					alert += String.format("%d 분, %d 초 후에 알람이 울립니다", minutes, seconds);
 				} else {
-					alert += String.format("%d seconds", seconds);
+					alert += String.format("%d 초 후에 알람이 울립니다", seconds);
 				}
 			}
 		}

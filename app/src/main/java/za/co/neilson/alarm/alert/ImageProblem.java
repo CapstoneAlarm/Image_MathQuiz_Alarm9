@@ -1,17 +1,24 @@
 package za.co.neilson.alarm.alert;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,21 +62,34 @@ public class ImageProblem extends AppCompatActivity{
 
     private MathProblem mathProblem;
 
-
+    private boolean authenticated=false;
 
 
     //hj
     private TextView timer;
     String mission="";
 
+    private Vibrator vibe;
+
+    /*
     ImageProblem(){
 
     }
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(vibrateReceiver, filter);
+
+
+        vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+
         cameraView = (CameraView) findViewById(R.id.cameraView);
         imageViewResult = (ImageView) findViewById(R.id.imageViewResult);
         textViewResult = (TextView) findViewById(R.id.textViewResult);
@@ -80,6 +100,8 @@ public class ImageProblem extends AppCompatActivity{
 
         //hj
         timer = (TextView) findViewById(R.id.timerTxt);
+
+
 
 
 
@@ -120,152 +142,12 @@ public class ImageProblem extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 cameraView.captureImage(); //이미지 캡쳐
-
-
             }
         });
 
         initTensorFlowAndLoadModel();
-    }
 
 
-    //hj
-    // 미션성공시 성공메시지 출력
-
-
-    public boolean verifyImage(){
-
-        boolean flag=false;
-
-        //인증 성공하면 알람이 꺼지는 동작 넣기
-
-        if(mission=="칫솔"){
-            if(textViewResult.getText().toString().contains("brush")){
-                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
-
-                flag=true;
-
-                finish();
-                finishAffinity();
-
-
-
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-
-                //return flag;
-
-            }
-            else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
-                //return flag;
-            }
-        }
-        else if(mission=="컵"){
-            if(textViewResult.getText().toString().contains("cup")){
-                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
-                flag=true;
-                finish();
-                finishAffinity();
-
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-                //return flag;
-
-
-            }
-            else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
-
-                //return flag;
-            }
-
-        }
-        else if(mission=="변기"){
-            if(textViewResult.getText().toString().contains("seat")){
-                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
-                flag=true;
-                finish();
-                finishAffinity();
-
-
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-                //return flag;
-
-            }
-            else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
-                //return flag;
-            }
-        }
-        else if(mission=="수도꼭지"){
-            if(textViewResult.getText().toString().contains("faucet")){
-                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
-                flag=true;
-                finish();
-                finishAffinity();
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-                //return flag;
-
-
-            }
-            else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
-                //return flag;
-            }
-        }
-
-        return flag;
-
-
-    }
-
-    //hj 이화면에서 제일 먼저 시작되는 메소드
-    @Override
-    protected void onResume() {
-        super.onResume();
         cameraView.start();
 
         //hj
@@ -343,7 +225,225 @@ public class ImageProblem extends AppCompatActivity{
 
 
 
+
+
+
+
+
+
+
+
+
+
     }
+
+
+//Lockscreen.getInstance(getApplicationContext()).startLockscreenService();  ->안되는데..?
+
+
+    public BroadcastReceiver vibrateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            long[] pattern = {100,300,100,700,300,2000};
+
+
+            if(intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                if(authenticated==false)
+                    vibe.vibrate(pattern, 0); //0:무한반복
+                else
+                    vibe.cancel();
+
+
+            }
+        }
+    };
+
+
+
+
+    //뒤로 가기 버튼 막기
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+	    case KeyEvent.KEYCODE_BACK:
+	        return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
+
+
+
+
+
+
+    //hj
+    // 미션성공시 성공메시지 출력
+    public boolean verifyImage(){
+
+
+
+        boolean flag=false;
+
+        //인증 성공하면 알람이 꺼지는 동작 넣기
+
+        if(mission=="칫솔"){
+            if(textViewResult.getText().toString().contains("brush")){
+                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+
+                flag=true;
+                authenticated =true;
+                vibe.cancel();
+
+                finish();
+                finishAffinity();
+
+
+
+                /*
+                try {
+                    Intent intent = new Intent(this, AlarmAlertActivity.class);
+                    intent.putExtra("flag", flag);
+                    startActivity(intent);
+
+                    this.finish();
+                } catch(Exception e){
+
+                }
+                */
+
+                //return flag;
+
+            }
+            else{
+                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                flag=false;
+
+                //return flag;
+            }
+        }
+        else if(mission=="컵"){
+            if(textViewResult.getText().toString().contains("cup")){
+                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+                flag=true;
+                authenticated =true;
+                vibe.cancel();
+
+                finish();
+                finishAffinity();
+
+
+                /*
+                try {
+                    Intent intent = new Intent(this, AlarmAlertActivity.class);
+                    intent.putExtra("flag", flag);
+                    startActivity(intent);
+
+                    this.finish();
+                } catch(Exception e){
+
+                }
+                */
+                //return flag;
+
+
+            }
+            else{
+                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                flag=false;
+
+                //return flag;
+            }
+
+        }
+        else if(mission=="변기"){
+            if(textViewResult.getText().toString().contains("seat")){
+                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+                flag=true;
+                authenticated =true;
+                vibe.cancel();
+
+                finish();
+                finishAffinity();
+
+
+                /*
+                try {
+                    Intent intent = new Intent(this, AlarmAlertActivity.class);
+                    intent.putExtra("flag", flag);
+                    startActivity(intent);
+
+                    this.finish();
+                } catch(Exception e){
+
+                }
+                */
+                //return flag;
+
+            }
+            else{
+                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                flag=false;
+
+                //return flag;
+            }
+        }
+        else if(mission=="수도꼭지"){
+            if(textViewResult.getText().toString().contains("faucet")){
+                Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+                flag=true;
+                authenticated =true;
+                vibe.cancel();
+
+                finish();
+                finishAffinity();
+                /*
+                try {
+                    Intent intent = new Intent(this, AlarmAlertActivity.class);
+                    intent.putExtra("flag", flag);
+                    startActivity(intent);
+
+                    this.finish();
+                } catch(Exception e){
+
+                }
+                */
+                //return flag;
+
+
+            }
+            else{
+                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                flag=false;
+
+                //return flag;
+            }
+        }
+
+        return flag;
+
+
+    }
+
+
+
+    //hj 이화면에서 제일 먼저 시작되는 메소드
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        cameraView.start();
+
+
+
+
+
+
+    }
+
 
 
     public void mathAfterImage(){
@@ -355,6 +455,7 @@ public class ImageProblem extends AppCompatActivity{
     protected void onPause() {
         cameraView.stop();
         super.onPause();
+
     }
 
     @Override

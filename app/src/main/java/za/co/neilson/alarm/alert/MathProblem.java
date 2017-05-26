@@ -60,10 +60,12 @@ public class MathProblem {
 		super();
 		Random random = new Random(System.currentTimeMillis());
 
+		//숫자 arraylist
 		parts = new ArrayList<Integer>(numParts);
 		for (int i = 0; i < numParts; i++)
 			parts.add(i, (Integer) random.nextInt(max - min + 1) + min);
 
+		//연산자 arraylist
 		operators = new ArrayList<MathProblem.Operator>(numParts - 1);
 		for (int i = 0; i < numParts - 1; i++)
 			operators.add(i, Operator.values()[random.nextInt(2) + 1]);
@@ -77,6 +79,8 @@ public class MathProblem {
 
 
 		//sj
+		//받아온 연산자에 따른 계산 수행
+
 		while(combinedParts.contains(Operator.DIVIDE) ||combinedParts.contains(Operator.MULTIPLY)
 				||combinedParts.contains(Operator.ADD) ||combinedParts.contains(Operator.SUBTRACT)){
 
@@ -86,7 +90,6 @@ public class MathProblem {
 				i++;
 			}
 
-			//받아온 연산자에 따른 계산 수행
 			if(combinedParts.get(i) == Operator.DIVIDE){
 				answer = (Integer)combinedParts.get(i-1) / (Integer)combinedParts.get(i+1);
 			}else if(combinedParts.get(i) == Operator.MULTIPLY){
@@ -104,23 +107,26 @@ public class MathProblem {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#toString()
-	 */
+	//sj
+	//문제 출력 ( a * b ) - c 이런 식으로
 	@Override
 	public String toString() {
 		StringBuilder problemBuilder = new StringBuilder();
-		for (int i = 0; i < parts.size(); i++) {
-			problemBuilder.append(parts.get(i));
-			problemBuilder.append(" ");
-			if (i < operators.size()){
-				problemBuilder.append(operators.get(i).toString());
-				problemBuilder.append(" ");
-			}
-		}
+
+		problemBuilder.append("( ");
+		problemBuilder.append(parts.get(0));
+		problemBuilder.append(" ");
+		problemBuilder.append(operators.get(0).toString());
+		problemBuilder.append(" ");
+		problemBuilder.append(parts.get(1));
+		problemBuilder.append(" ) ");
+		problemBuilder.append(operators.get(1).toString());
+		problemBuilder.append(" ");
+		problemBuilder.append(parts.get(2));
+		problemBuilder.append(" ");
+
 		return problemBuilder.toString();
+
 	}
 
 	public float getAnswer() {

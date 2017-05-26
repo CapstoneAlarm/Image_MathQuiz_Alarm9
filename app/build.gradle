@@ -29,4 +29,5 @@ dependencies {
     compile files('libs/libandroid_tensorflow_inference_java.jar')
     compile 'com.flurgle:camerakit:0.9.13'
     testCompile 'junit:junit:4.12'
+
 }

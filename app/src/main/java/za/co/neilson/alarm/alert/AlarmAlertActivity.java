@@ -17,8 +17,10 @@ package za.co.neilson.alarm.alert;
 import za.co.neilson.alarm.Alarm;
 import za.co.neilson.alarm.R;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -54,10 +56,22 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 	private TextView problemView;
 	private TextView answerView;
 	private String answerString;
+
+
+
+	private boolean authenticated=false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+
+		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+		registerReceiver(vibrateReceiver, filter);
+
+
 		final Window window = getWindow();
 		window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
 				| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -243,6 +257,24 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 		}
 
 	}
+
+	public BroadcastReceiver vibrateReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			long[] pattern = {100,300,100,700,300,2000};
+
+
+			if(intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+				if(authenticated==false)
+					vibrator.vibrate(pattern, 0); //0:무한반복
+				else
+					vibrator.cancel();
+
+
+			}
+		}
+	};
 
 	/*
 	 * (non-Javadoc)
