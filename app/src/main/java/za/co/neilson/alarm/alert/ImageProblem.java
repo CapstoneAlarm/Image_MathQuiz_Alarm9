@@ -218,21 +218,8 @@ public class ImageProblem extends AppCompatActivity{
                 */
 
 
-
-
             }
         }.start();
-
-
-
-
-
-
-
-
-
-
-
 
 
     }
