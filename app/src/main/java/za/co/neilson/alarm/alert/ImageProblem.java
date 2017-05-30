@@ -32,6 +32,7 @@ import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import za.co.neilson.alarm.Alarm;
 import za.co.neilson.alarm.AlarmActivity;
 import za.co.neilson.alarm.R;            //????????????????
 
@@ -201,21 +202,16 @@ public class ImageProblem extends AppCompatActivity{
 
             public void onFinish() {
                 timer.setText("타임 오버");
-                finish(); //이 액티비티 종료하고
-                //부모 액티비티로 이동
-                //이뒤에 나오는 부모 액티비티에서 계산 문제가 안나오는 문제점을 해결해야 함.
-                //mathAfterImage();
+
+                //hj
+                //실패시 사칙연산으로 넘어가는 동작
+
+                Intent intent = new Intent(ImageProblem.this,AlarmAlertActivity2.class);
+                startActivity(intent);
 
 
-                /*
-                *
-                * 실패시 사칙연산으로 넘어가는 동작 넣기
-                *
-                *
-                *
-                *
-                *
-                */
+                //finish(); 액티비티 끄지말고 다른 액티비티로 이동해서 거기서 부모까지 킬해버린다.
+
 
 
             }
@@ -223,6 +219,9 @@ public class ImageProblem extends AppCompatActivity{
 
 
     }
+
+
+
 
 
 //Lockscreen.getInstance(getApplicationContext()).startLockscreenService();  ->안되는데..?
@@ -433,10 +432,16 @@ public class ImageProblem extends AppCompatActivity{
 
 
 
+    //hj
+
     public void mathAfterImage(){
-        Intent intent = new Intent(this,AlarmAlertActivity.class);
+        Intent intent = new Intent(ImageProblem.this,AlarmAlertActivity.class);
+
+        //Alarm 의 alarm.getHowto()에 IMAGE 넣어줌.
+        intent.putExtra("module", "next_math"); //math 모듈임을 전달
         startActivity(intent);
     }
+
 
     @Override
     protected void onPause() {
@@ -448,6 +453,14 @@ public class ImageProblem extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        //hj 누수 막기
+        try {
+            unregisterReceiver(vibrateReceiver);
+        } catch (Exception e) {
+
+        }
+
         executor.execute(new Runnable() {
             @Override
             public void run() {

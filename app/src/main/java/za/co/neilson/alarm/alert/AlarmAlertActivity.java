@@ -58,6 +58,7 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 	private String answerString;
 
 
+	String check_module = "default";
 
 	private boolean authenticated=false;
 	
@@ -83,21 +84,26 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 		Bundle bundle = this.getIntent().getExtras();
 		alarm = (Alarm) bundle.getSerializable("alarm");
 
+
 		this.setTitle(alarm.getAlarmName());
 
 
-		boolean check_flag = false;
-		/*
+
+
+
+/*
 		try {
-			Intent intent2 = getIntent();
-			check_flag = intent2.getExtras().getBoolean("flag");
-			Toast.makeText(this,String.valueOf(check_flag),Toast.LENGTH_SHORT).show();
+			check_module = bundle.getString("module");
+
+			if(check_module!=null) {
+				Toast.makeText(this, check_module, Toast.LENGTH_SHORT).show();
+			}
 
 
 		}catch (Exception e){
 
 		}
-		*/
+*/
 
 
 		switch (alarm.getHowto()) {
@@ -154,6 +160,8 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 			case MATH:
 				mathProblem = new MathProblem(3);
 			break;
+
+
 		}
 
 
@@ -316,6 +324,14 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 		} catch (Exception e) {
 
 		}
+
+		//hj 누수 막기
+		try {
+			unregisterReceiver(vibrateReceiver);
+		} catch (Exception e) {
+
+		}
+
 		super.onDestroy();
 	}
 
