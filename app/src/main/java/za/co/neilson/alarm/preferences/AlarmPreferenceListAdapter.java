@@ -35,7 +35,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
 
-public class AlarmPreferenceListAdapter extends BaseAdapter implements Serializable {
+public class AlarmPreferenceListAdapter extends BaseAdapter {
 
 	private Context context;
 	private Alarm alarm;

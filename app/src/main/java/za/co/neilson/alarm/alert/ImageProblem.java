@@ -85,7 +85,10 @@ public class ImageProblem extends AppCompatActivity{
 
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        IntentFilter filter_on = new IntentFilter(Intent.ACTION_SCREEN_ON);
+
         registerReceiver(vibrateReceiver, filter);
+        registerReceiver(vibrateReceiver_on, filter_on);
 
 
         vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -189,12 +192,14 @@ public class ImageProblem extends AppCompatActivity{
                 AlertDialog alertDialog2 = alertDialogBuilder2.create();
                 alertDialog2.show();
 
+
             }
         }, 3000);
 
+
         //hj
         //화면 켜지자마자 1분 타이머
-        final CountDownTimer countDownTimer = new CountDownTimer(60000, 1000) {
+        final CountDownTimer countDownTimer = new CountDownTimer(6000, 1000) {  //60000
             public void onTick(long millisUntilFinished) {
                 timer.setText("제한시간 : " + millisUntilFinished / 1000 + "초");
 
@@ -206,8 +211,16 @@ public class ImageProblem extends AppCompatActivity{
                 //hj
                 //실패시 사칙연산으로 넘어가는 동작
 
-                Intent intent = new Intent(ImageProblem.this,AlarmAlertActivity2.class);
-                startActivity(intent);
+                if(!authenticated) { //이미지 인식 실패시 넘어감
+
+                    vibe.cancel(); //이 액티비티 안에서의 진동은 스탑
+                    Intent intent = new Intent(ImageProblem.this, AlarmAlertActivity2.class);
+                    startActivity(intent);
+                }
+                else{ //이미지 인식 성공시 종료
+                    finish();
+                    finishAffinity();
+                }
 
 
                 //finish(); 액티비티 끄지말고 다른 액티비티로 이동해서 거기서 부모까지 킬해버린다.
@@ -221,10 +234,6 @@ public class ImageProblem extends AppCompatActivity{
     }
 
 
-
-
-
-//Lockscreen.getInstance(getApplicationContext()).startLockscreenService();  ->안되는데..?
 
 
     public BroadcastReceiver vibrateReceiver = new BroadcastReceiver() {
@@ -241,6 +250,27 @@ public class ImageProblem extends AppCompatActivity{
                     vibe.cancel();
 
 
+            }
+
+        }
+    };
+
+    //hj
+    //화면이 켜지면 원래 리듬의 진동으로
+    public BroadcastReceiver vibrateReceiver_on = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            long[] pattern_origin = { 1000, 200, 200, 200 };
+
+            if(intent.getAction().equals(Intent.ACTION_SCREEN_ON)){
+                //vibrator.cancel();
+                //Toast.makeText(AlarmAlertActivity2.this, "screen on", Toast.LENGTH_SHORT).show();
+
+                vibe.vibrate(pattern_origin, 0);
+
+                if(authenticated)
+                    vibe.cancel();
             }
         }
     };
@@ -445,6 +475,7 @@ public class ImageProblem extends AppCompatActivity{
 
     @Override
     protected void onPause() {
+
         cameraView.stop();
         super.onPause();
 
@@ -454,9 +485,15 @@ public class ImageProblem extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
 
+
+
+
         //hj 누수 막기
         try {
+
             unregisterReceiver(vibrateReceiver);
+            unregisterReceiver(vibrateReceiver_on);
+
         } catch (Exception e) {
 
         }

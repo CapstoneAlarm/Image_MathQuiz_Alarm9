@@ -60,7 +60,7 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 
 	String check_module = "default";
 
-	private boolean authenticated=false;
+	//private boolean authenticated=false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -274,10 +274,10 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 
 
 			if(intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-				if(authenticated==false)
+				//if(authenticated==false)
 					vibrator.vibrate(pattern, 0); //0:무한반복
-				else
-					vibrator.cancel();
+				//else
+					//vibrator.cancel();
 
 
 			}
@@ -421,7 +421,6 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 
 
 	//이미지 인식 성공일 경우
-	//이 메소드를 어디서 호출하지..
 	public boolean isAnswerCorrect2() {
 		boolean correct = false;
 
