@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -57,7 +58,7 @@ public class ImageProblem extends AppCompatActivity{
     private Classifier classifier;
     private Executor executor = Executors.newSingleThreadExecutor();
     private TextView textViewResult;
-    private Button btnDetectObject, btnToggleCamera;
+    private ImageView btnDetectObject, btnToggleCamera;
     private ImageView imageViewResult;
     private CameraView cameraView;
 
@@ -101,12 +102,36 @@ public class ImageProblem extends AppCompatActivity{
         textViewResult = (TextView) findViewById(R.id.textViewResult);
         textViewResult.setMovementMethod(new ScrollingMovementMethod());
 
-        btnToggleCamera = (Button) findViewById(R.id.btnToggleCamera);
-        btnDetectObject = (Button) findViewById(R.id.btnDetectObject);
+        btnToggleCamera = (ImageView) findViewById(R.id.btnToggleCamera);
+        btnDetectObject = (ImageView) findViewById(R.id.btnDetectObject);
 
         //hj
         timer = (TextView) findViewById(R.id.timerTxt);
 
+
+
+
+        /*
+
+        if(background.getHeight() < background.getWidth()){
+	background = imgRotate(background);
+}
+
+private Bitmap imgRotate(Bitmap bmp){
+		int width = bmp.getWidth();
+		int height = bmp.getHeight();
+
+		Matrix matrix = new Matrix();
+		matrix.postRotate(90);
+
+		Bitmap resizedBitmap = Bitmap.createBitmap(bmp, 0, 0, width, height, matrix, true);
+		bmp.recycle();
+
+		return resizedBitmap;
+}
+
+
+         */
 
 
 
@@ -115,24 +140,26 @@ public class ImageProblem extends AppCompatActivity{
             @Override
             public void onPictureTaken(byte[] picture) {
                 super.onPictureTaken(picture);
-
                 Bitmap bitmap = BitmapFactory.decodeByteArray(picture, 0, picture.length);
-
                 bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, false);
+
 
                 imageViewResult.setImageBitmap(bitmap);
 
-                //hj 여기서 TensorFlowImageClassifier의 이미지분류 데이터를 넘겨주고 있다.
+                //TensorFlowImageClassifier의 이미지분류 데이터를 넘겨주기
                 final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
 
 
-                //hj Classifier의 toString()호출로, 화면에 인식결과를 찍어낸다.
+                //Classifier의 toString()호출로, 화면에 인식결과를 찍어내기
                 textViewResult.setText(results.toString());
+
 
                 //hj
                 //성공메시지 띄우는 메소드
                 verifyImage();
 
+                //hj
+                //verifyImage()결과, 실패 횟수에 따른 다른 작동
                 if(flagged==1){
                     Toast.makeText(ImageProblem.this,"(1회 실패) 인식률이 낮습니다. ",Toast.LENGTH_SHORT).show();
 
@@ -142,7 +169,8 @@ public class ImageProblem extends AppCompatActivity{
                 } else if(flagged==3){
                     Toast.makeText(ImageProblem.this,"(3회 실패) 인식률이 낮습니다. ",Toast.LENGTH_SHORT).show();
 
-                    vibe.cancel(); //이 액티비티 안에서의 진동은 스탑
+                    //이미지 인식 3번 실패하면 사칙연산 퀴즈로 넘기기
+                    vibe.cancel();
                     Intent intent = new Intent(ImageProblem.this, AlarmAlertActivity2.class);
                     startActivity(intent);
                     finish();
@@ -214,39 +242,34 @@ public class ImageProblem extends AppCompatActivity{
         }, 3000);
 
 
+
         //hj
-        //화면 켜지자마자 1분 타이머
-        final CountDownTimer countDownTimer = new CountDownTimer(60000, 1000) {  //60000
+        //화면 켜지자마자 1분 카운트 다운이 시작된다.
+        final CountDownTimer countDownTimer = new CountDownTimer(60000, 1000) {
             public void onTick(long millisUntilFinished) {
                 timer.setText("제한시간 : " + millisUntilFinished / 1000 + "초");
 
             }
 
+            //1분이 지났을 때
             public void onFinish() {
                 timer.setText("타임 오버");
 
-                //vibe.cancel();
+                //이미지 인식 실패한 상태라면
+                if(!authenticated) {
 
-                //hj
-                //실패시 사칙연산으로 넘어가는 동작
-
-                if(!authenticated) { //이미지 인식 실패시 넘어감
-
+                    //이 액티비티에서의 진동은 멈추고, 사칙연산 퀴즈로 넘어간다.
                     if(flagged!=3) {
-                        vibe.cancel(); //이 액티비티 안에서의 진동은 스탑
+                        vibe.cancel();
                         Intent intent = new Intent(ImageProblem.this, AlarmAlertActivity2.class);
                         startActivity(intent);
                     }
                 }
-                else{ //이미지 인식 성공시 종료
+                //이미지 인식 성공하면 정상 종료
+                else{
                     finish();
                     finishAffinity();
                 }
-
-
-                //finish(); 액티비티 끄지말고 다른 액티비티로 이동해서 거기서 부모까지 킬해버린다.
-
-
 
             }
         }.start();
