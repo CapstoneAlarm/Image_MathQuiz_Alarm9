@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -47,7 +48,7 @@ public class AlarmAlertActivity2 extends Activity implements View.OnClickListene
     private MathProblem mathProblem;
     private ImageProblem imageProblem;
 
-    private Vibrator vibrator;
+    Vibrator vibrator;
 
     private boolean alarmActive;
 
@@ -59,6 +60,7 @@ public class AlarmAlertActivity2 extends Activity implements View.OnClickListene
     String check_module = "default";
 
     String authenticated;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,19 +233,26 @@ public class AlarmAlertActivity2 extends Activity implements View.OnClickListene
 
                 vibrator.vibrate(pattern_origin, 0);
 
+                try {
+
 
                 if(authenticated=="yes") {
 
-//                     Toast.makeText(AlarmAlertActivity2.this,"authen",Toast.LENGTH_SHORT).show();
-                    //vibrator.vibrate(new long[]{0, 2 * DateUtils.SECOND_IN_MILLIS}, -1);
+    //                     Toast.makeText(AlarmAlertActivity2.this,"authen",Toast.LENGTH_SHORT).show();
+                        //vibrator.vibrate(new long[]{0, 2 * DateUtils.SECOND_IN_MILLIS}, -1);
 
 
-                    vibrator.cancel();
-                    finish();
-                    finishAffinity();
+                        vibrator.cancel();
+
+
+                        finish();
+
+                        finishAffinity();
+                    }
+
+                } catch(Exception e){
+
                 }
-
-
             }
         }
     };
@@ -346,9 +355,13 @@ public class AlarmAlertActivity2 extends Activity implements View.OnClickListene
                 // 사칙연산 정답으로 알람이 꺼지는 동작
                 if (isAnswerCorrect()) { //메소드 추가
                     authenticated="yes"; //연산 정답임을 표시 //이게 안먹히는 듯
+
+
+
                     alarmActive = false;
 
                     if (vibrator != null) {
+
                         vibrator.cancel();
                         finishAndRemoveTask();
                     }
@@ -395,10 +408,12 @@ public class AlarmAlertActivity2 extends Activity implements View.OnClickListene
             e.printStackTrace();
             return false;
         }
-        if(correct==true)
-            authenticated="yes";
+        //if(correct==true)
+            //authenticated="yes";
 
         return correct;
+
+
 
     }
 

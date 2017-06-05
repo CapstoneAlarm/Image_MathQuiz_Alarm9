@@ -72,6 +72,8 @@ public class ImageProblem extends AppCompatActivity{
 
     private Vibrator vibe;
 
+    int flagged=0;
+
     /*
     ImageProblem(){
 
@@ -130,6 +132,21 @@ public class ImageProblem extends AppCompatActivity{
                 //hj
                 //성공메시지 띄우는 메소드
                 verifyImage();
+
+                if(flagged==1){
+                    Toast.makeText(ImageProblem.this,"(1회 실패) 인식률이 낮습니다. ",Toast.LENGTH_SHORT).show();
+
+                } else if(flagged==2){
+                    Toast.makeText(ImageProblem.this,"(2회 실패) 인식률이 낮습니다. ",Toast.LENGTH_SHORT).show();
+
+                } else if(flagged==3){
+                    Toast.makeText(ImageProblem.this,"(3회 실패) 인식률이 낮습니다. ",Toast.LENGTH_SHORT).show();
+
+                    vibe.cancel(); //이 액티비티 안에서의 진동은 스탑
+                    Intent intent = new Intent(ImageProblem.this, AlarmAlertActivity2.class);
+                    startActivity(intent);
+                    finish();
+                }
 
             }
         });
@@ -199,7 +216,7 @@ public class ImageProblem extends AppCompatActivity{
 
         //hj
         //화면 켜지자마자 1분 타이머
-        final CountDownTimer countDownTimer = new CountDownTimer(6000, 1000) {  //60000
+        final CountDownTimer countDownTimer = new CountDownTimer(60000, 1000) {  //60000
             public void onTick(long millisUntilFinished) {
                 timer.setText("제한시간 : " + millisUntilFinished / 1000 + "초");
 
@@ -208,14 +225,18 @@ public class ImageProblem extends AppCompatActivity{
             public void onFinish() {
                 timer.setText("타임 오버");
 
+                //vibe.cancel();
+
                 //hj
                 //실패시 사칙연산으로 넘어가는 동작
 
                 if(!authenticated) { //이미지 인식 실패시 넘어감
 
-                    vibe.cancel(); //이 액티비티 안에서의 진동은 스탑
-                    Intent intent = new Intent(ImageProblem.this, AlarmAlertActivity2.class);
-                    startActivity(intent);
+                    if(flagged!=3) {
+                        vibe.cancel(); //이 액티비티 안에서의 진동은 스탑
+                        Intent intent = new Intent(ImageProblem.this, AlarmAlertActivity2.class);
+                        startActivity(intent);
+                    }
                 }
                 else{ //이미지 인식 성공시 종료
                     finish();
@@ -301,14 +322,30 @@ public class ImageProblem extends AppCompatActivity{
 
 
 
+        //퍼센테이지 추출
+        String resultObject= textViewResult.getText().toString();
+
+        int ratioIndexPrev = resultObject.indexOf("(");
+        int ratioIndexTail = resultObject.indexOf(".");
+
+        int ratioIndexStart = ratioIndexPrev+1;
+        int ratioIndexEnd = ratioIndexTail;
+
+        String ratioResult = resultObject.substring(ratioIndexStart,ratioIndexEnd);
+
+        //Toast.makeText(ImageProblem.this,ratioResult,Toast.LENGTH_SHORT).show(); //퍼센테이지 테스트 완료
+
+
         boolean flag=false;
 
         //인증 성공하면 알람이 꺼지는 동작 넣기
 
         if(mission=="칫솔"){
-            if(textViewResult.getText().toString().contains("brush")){
+            if( (textViewResult.getText().toString().contains("brush")) && (Integer.valueOf(ratioResult)>=98) ){
                 Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
 
+
+                flagged=0;
                 flag=true;
                 authenticated =true;
                 vibe.cancel();
@@ -317,32 +354,20 @@ public class ImageProblem extends AppCompatActivity{
                 finishAffinity();
 
 
-
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-
-                //return flag;
-
             }
             else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
+                //Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                //flag=false;
+                flagged++;
 
-                //return flag;
+
             }
         }
         else if(mission=="컵"){
-            if(textViewResult.getText().toString().contains("cup")){
+            if( (textViewResult.getText().toString().contains("cup")) && (Integer.valueOf(ratioResult)>=98) ){
                 Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+
+                flagged=0;
                 flag=true;
                 authenticated =true;
                 vibe.cancel();
@@ -351,32 +376,20 @@ public class ImageProblem extends AppCompatActivity{
                 finishAffinity();
 
 
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-                //return flag;
-
-
             }
             else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
+                //Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                //flag=false;
+                flagged++;
 
-                //return flag;
             }
 
         }
         else if(mission=="변기"){
-            if(textViewResult.getText().toString().contains("seat")){
+            if( (textViewResult.getText().toString().contains("seat")) && (Integer.valueOf(ratioResult)>=98) ){
                 Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+
+                flagged=0;
                 flag=true;
                 authenticated =true;
                 vibe.cancel();
@@ -385,56 +398,32 @@ public class ImageProblem extends AppCompatActivity{
                 finishAffinity();
 
 
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-                //return flag;
-
             }
             else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
+                //Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                //flag=false;
+                flagged++;
 
-                //return flag;
             }
         }
         else if(mission=="수도꼭지"){
-            if(textViewResult.getText().toString().contains("faucet")){
+            if( (textViewResult.getText().toString().contains("faucet")) && (Integer.valueOf(ratioResult)>=98) ){
                 Toast.makeText(this,"인증 성공!",Toast.LENGTH_SHORT).show();
+
+                flagged=0;
                 flag=true;
                 authenticated =true;
                 vibe.cancel();
 
                 finish();
                 finishAffinity();
-                /*
-                try {
-                    Intent intent = new Intent(this, AlarmAlertActivity.class);
-                    intent.putExtra("flag", flag);
-                    startActivity(intent);
-
-                    this.finish();
-                } catch(Exception e){
-
-                }
-                */
-                //return flag;
-
 
             }
             else{
-                Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
-                flag=false;
+                //Toast.makeText(this,"인증 실패..",Toast.LENGTH_SHORT).show();
+                //flag=false;
+                flagged++;
 
-                //return flag;
             }
         }
 
